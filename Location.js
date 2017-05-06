@@ -5,6 +5,7 @@ var {
     StyleSheet,
     Text,
     View,
+    Button
 } = ReactNative;
 exports.framework = 'React';
 exports.title = 'Geolocation';
@@ -17,55 +18,51 @@ exports.examples = [
         },
     }
 ];
-export default class Location extends React.Component {
-    state = {
-        initialPosition: 'unknown',
-        currentPosition: 'unknown',
-        initialLat:'unknown',
-        initialLong:'unknown',
-        currentLat:'unknown',
-        currentLong:'unknown'
-    };
-    watchID: ?number = null;
-    componentDidMount() {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                var initialPosition = JSON.stringify(position);
-                this.setState({initialPosition, initialLat: position.coords.latitude, initialLong: position.coords.longitude});
-            },
-            (error) => alert(JSON.stringify(error)),
-            {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
-        );
-        this.watchID = navigator.geolocation.watchPosition((position) => {
-            var currentPosition = JSON.stringify(position);
-            this.setState({currentPosition, currentLat: position.coords.latitude, currentLong: position.coords.longitude});
-        });
-    }
-    componentWillUnmount() {
-        navigator.geolocation.clearWatch(this.watchID);
-    }
-    render() {
-      console.log(this.state.currentLat)
-        return (
-            <View>
-                <Text>
-                    <Text style={styles.title}>Initial position: </Text>
-                    {this.state.initialPosition}
-                </Text>
-                <Text>
-                    <Text style={styles.title}>Current Latitude: </Text>
-                    {this.state.currentLat}
-                </Text>
-                <Text>
-                    <Text style={styles.title}>Current Longitude: </Text>
-                    {this.state.currentLong}
-                </Text>
-            </View>
-        );
-    }
-}
-var styles = StyleSheet.create({
+
+import MapComp from './Map'
+import MapView from 'react-native-maps';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white'
+  },
+  map: {
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    position: 'absolute'
+  },
+  marker: {
+    height: 20,
+    width: 20,
+    borderRadius: 20 / 2,
+    overflow: 'hidden'
+  },
     title: {
         fontWeight: '500',
     },
-});
+})
+export default class Location extends React.Component {
+    constructor(props){
+        super(props)
+        this.state = {
+            region: {
+                latitude: null,
+                longitude: null,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421
+            }
+        }
+    }
+    render(){
+        console.log('props', this.state.region)
+        return (
+            <MapComp />
+        )
+    }
+}
+

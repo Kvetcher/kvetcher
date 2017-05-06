@@ -23,14 +23,14 @@ const FakeComponent = () => {
 
 
 const Tabs = TabNavigator({
+    LocationTest: {
+        screen: Location
+    },
     MapTest: {
         screen: MapComp
     },
     FirebaseTest: {
         screen: FirebaseTest
-    },
-    LocationTest: {
-        screen: Location
     },
 });
 
@@ -40,3 +40,6 @@ export default Nav = StackNavigator({
     }
 
 });
+
+
+
