@@ -55,7 +55,10 @@ export default class MapComp extends React.Component {
               key={marker.id}
               coordinate={marker.latlng}
               identifier={'https://www.youtube.com/watch?v=kaWkfpk3rbg'}
-              onSelect={evt => console.log('Select', evt.nativeEvent)}
+              onSelect={() => {
+                this.props.navigation.navigate('Details')
+              }}
+              // onSelect={evt => console.log('Select', evt.nativeEvent)}
               // onSelect={() => console.log('Nav', this.props)}
               // onCalloutPress={evt => Linking.openURL(evt.nativeEvent.id)}
               >
