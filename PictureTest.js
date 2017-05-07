@@ -40,8 +40,8 @@ export default class PictureTest extends React.Component {
   }
 
   nativeSnapImage() {
-  ImagePickerIOS.canRecordVideos(result => console.log(result))
-  ImagePickerIOS.canUseCamera(result => console.log(result))
+//   ImagePickerIOS.canRecordVideos(result => console.log(result))
+//   ImagePickerIOS.canUseCamera(result => console.log(result))
   ImagePickerIOS.openCameraDialog({}, imageUri => {
       this.setState({ image: imageUri });
     }, error => console.error(error));
