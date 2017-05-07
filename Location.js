@@ -1,12 +1,7 @@
 'use strict';
 var React = require('react');
 var ReactNative = require('react-native');
-var {
-    StyleSheet,
-    Text,
-    View,
-    Button
-} = ReactNative;
+var { StyleSheet, Text, View, Button } = ReactNative;
 exports.framework = 'React';
 exports.title = 'Geolocation';
 exports.description = 'Examples of using the Geolocation API.';
@@ -59,9 +54,9 @@ export default class Location extends React.Component {
         }
     }
     render(){
-        console.log('props', this.state.region)
+        console.log('props', this.props)
         return (
-            <MapComp />
+            <MapComp navigation={this.props.navigation}/>
         )
     }
 }

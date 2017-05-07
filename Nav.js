@@ -1,10 +1,11 @@
 import { StackNavigator, TabNavigator } from 'react-navigation';
 import React, { Component } from 'react';
 import FirebaseTest from './FirebaseTest';
-import Location from './Location';
+//import Location from './Location';
 import PictureTest from './PictureTest';
 import StyleTest from './StyleTest';
 // import VideoTest from './VideoTest';
+import MapNav from './components/MapNav'
 
 import {
     AppRegistry,
@@ -16,7 +17,7 @@ import {
 
 const Tabs = TabNavigator({
     LocationTest: {
-        screen: Location
+        screen: MapNav
     },
     FirebaseTest: {
         screen: FirebaseTest
