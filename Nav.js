@@ -1,8 +1,10 @@
 import { StackNavigator, TabNavigator } from 'react-navigation';
 import React, { Component } from 'react';
-import FirebaseTest from './FirebaseTest'
-import Location from './Location'
-import MapComp from './Map'
+import FirebaseTest from './FirebaseTest';
+import Location from './Location';
+import PictureTest from './PictureTest';
+import StyleTest from './StyleTest';
+// import VideoTest from './VideoTest';
 
 import {
     AppRegistry,
@@ -11,26 +13,19 @@ import {
     View
 } from 'react-native';
 
-const FakeComponent = () => {
-    return (
-        <View>
-            <Text>
-                hi bark meow
-            </Text>
-        </View>
-    );
-};
-
 
 const Tabs = TabNavigator({
     LocationTest: {
         screen: Location
     },
-    MapTest: {
-        screen: MapComp
-    },
     FirebaseTest: {
         screen: FirebaseTest
+    },
+    PictureTest: {
+        screen: PictureTest
+    },
+    StyleTest: {
+        screen: StyleTest
     },
 });
 
@@ -40,6 +35,3 @@ export default Nav = StackNavigator({
     }
 
 });
-
-
-

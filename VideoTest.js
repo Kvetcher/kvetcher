@@ -1,149 +1,250 @@
-console.disableYellowBox = true;
-
-import React, {Component} from 'react';
-import ReactNative from 'react-native';
-const firebase = require('firebase');
-const StatusBar = require('./dummy/StatusBar');
-const ActionButton = require('./dummy/ActionButton');
-const ListItem = require('./dummy/ListItem');
-const styles = require('./dummy/styles.js')
-
-const {
-  AppRegistry,
-  ListView,
+import React from 'react';
+import {
+  Image,
+  StatusBar,
   StyleSheet,
-  Text,
+  TouchableOpacity,
   View,
-  TouchableHighlight,
-  AlertIOS,
-} = ReactNative;
+  AppRegistry,
+} from 'react-native';
+import Camera from 'react-native-camera';
 
-//config for firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyDs-MTj9PX6NOFWT9-Cy09F-Tx9UyBHMag",
-  authDomain: "dummy-e994e.firebaseapp.com",
-  databaseURL: "https://dummy-e994e.firebaseio.com",
-  projectId: "dummy-e994e",
-  storageBucket: "dummy-e994e.appspot.com",
-  messagingSenderId: "426835810504"
-};
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  preview: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  overlay: {
+    position: 'absolute',
+    padding: 16,
+    right: 0,
+    left: 0,
+    alignItems: 'center',
+  },
+  topOverlay: {
+    top: 0,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  bottomOverlay: {
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  captureButton: {
+    padding: 15,
+    backgroundColor: 'white',
+    borderRadius: 40,
+  },
+  typeButton: {
+    padding: 5,
+  },
+  flashButton: {
+    padding: 5,
+  },
+  buttonsSpace: {
+    width: 10,
+  },
+});
 
-const firebaseApp = firebase.initializeApp(firebaseConfig);
-
-export default class FirebaseTest extends Component {
+export default class VideoTest extends React.Component {
   constructor(props) {
     super(props);
+
+    this.camera = null;
+
     this.state = {
-      dataSource: new ListView.DataSource({
-        rowHasChanged: (row1, row2) => row1 !== row2,
-      })
+      camera: {
+        aspect: Camera.constants.Aspect.fill,
+        captureTarget: Camera.constants.CaptureTarget.cameraRoll,
+        type: Camera.constants.Type.back,
+        orientation: Camera.constants.Orientation.auto,
+        flashMode: Camera.constants.FlashMode.auto,
+      },
+      isRecording: false
     };
-    //'items' is the parent of what we are putting into the database
-    //this line is also serving the double purpose of listening for changes from the server for 'items'
-    //if I change this to another word, it will create a new parent for whatever word that is
-    //No validation if that parent already exists or not. Just adds it...
-    //when you are trying to go to deeper nodes, you would write something like 'posts/' + postId + '/title'
-    this.itemsRef = this.getRef().child('items');
   }
 
-  getRef() {
-    return firebaseApp.database().ref();
+  takePicture = () => {
+    if (this.camera) {
+      this.camera.capture()
+        .then((data) => console.log(data))
+        .catch(err => console.error(err));
+    }
   }
 
-  listenForItems(itemsRef) {
-    //'value' looks for changes in that entire node (including children) and then sends back all data from that node
-    //suposed to try to listen for data as deep as possible to limit the snapshot size sent to the client
-    itemsRef.on('value', (snap) => {
-
-      // get children as an array. snap variable is the data coming from the database
-      var items = [];
-      snap.forEach((child) => {
-        items.push({
-          //the .title is the value we are pulling off the object
-          title: child.val().title,
-          //the key is automatically generated I think
-          _key: child.key
-        });
-      });
-
+  startRecording = () => {
+    if (this.camera) {
+      this.camera.capture({mode: Camera.constants.CaptureMode.video})
+          .then((data) => console.log(data))
+          .catch(err => console.error(err));
       this.setState({
-        //this is just adding the items array to the state (page display)
-        dataSource: this.state.dataSource.cloneWithRows(items)
+        isRecording: true
       });
+    }
+  }
 
+  stopRecording = () => {
+    if (this.camera) {
+      this.camera.stopCapture();
+      this.setState({
+        isRecording: false
+      });
+    }
+  }
+
+  switchType = () => {
+    let newType;
+    const { back, front } = Camera.constants.Type;
+
+    if (this.state.camera.type === back) {
+      newType = front;
+    } else if (this.state.camera.type === front) {
+      newType = back;
+    }
+
+    this.setState({
+      camera: {
+        ...this.state.camera,
+        type: newType,
+      },
     });
   }
 
-////You would use .once instead of .on for data you wanted only once and did not want to listen for it
-  // var userId = firebase.auth().currentUser.uid;
-  // return firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
-  //   var username = snapshot.val().username;
-  //   // ...
-  // });
+  get typeIcon() {
+    let icon;
+    const { back, front } = Camera.constants.Type;
 
-////Eager posting to database https://firebase.google.com/docs/database/web/read-and-write#updating_or_deleting_data
+    if (this.state.camera.type === back) {
+      icon = require('./assets/ic_camera_rear_white.png');
+    } else if (this.state.camera.type === front) {
+      icon = require('./assets/ic_camera_front_white.png');
+    }
 
-  componentDidMount() {
-    //listens for changes from the database. if this is commented out,
-    //it doesn't pull anything from the database. you can still post though
-    this.listenForItems(this.itemsRef);
+    return icon;
+  }
+
+  switchFlash = () => {
+    let newFlashMode;
+    const { auto, on, off } = Camera.constants.FlashMode;
+
+    if (this.state.camera.flashMode === auto) {
+      newFlashMode = on;
+    } else if (this.state.camera.flashMode === on) {
+      newFlashMode = off;
+    } else if (this.state.camera.flashMode === off) {
+      newFlashMode = auto;
+    }
+
+    this.setState({
+      camera: {
+        ...this.state.camera,
+        flashMode: newFlashMode,
+      },
+    });
+  }
+
+  get flashIcon() {
+    let icon;
+    const { auto, on, off } = Camera.constants.FlashMode;
+
+    if (this.state.camera.flashMode === auto) {
+      icon = require('./assets/ic_flash_auto_white.png');
+    } else if (this.state.camera.flashMode === on) {
+      icon = require('./assets/ic_flash_on_white.png');
+    } else if (this.state.camera.flashMode === off) {
+      icon = require('./assets/ic_flash_off_white.png');
+    }
+
+    return icon;
   }
 
   render() {
     return (
       <View style={styles.container}>
-
-        <StatusBar title="Grocery List" />
-
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={this._renderItem.bind(this)}
-          enableEmptySections={true}
-          style={styles.listview}/>
-
-        <ActionButton onPress={this._addItem.bind(this)} title="Add" />
-
-      </View>
-    )
-  }
-
-  _addItem() {
-    AlertIOS.prompt(
-      'Add New Item',
-      null,
-      [
-        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-        {
-          text: 'Add',
-          onPress: (text) => {
-            //this is we're we send data into the database
-            //we can push any values and keys we want into the database
-            this.itemsRef.push({ title: text })
+        <StatusBar
+          animated
+          hidden
+        />
+        <Camera
+          ref={(cam) => {
+            this.camera = cam;
+          }}
+          style={styles.preview}
+          aspect={this.state.camera.aspect}
+          captureTarget={this.state.camera.captureTarget}
+          type={this.state.camera.type}
+          flashMode={this.state.camera.flashMode}
+          onFocusChanged={() => {}}
+          onZoomChanged={() => {}}
+          defaultTouchToFocus
+          mirrorImage={false}
+        />
+        <View style={[styles.overlay, styles.topOverlay]}>
+          <TouchableOpacity
+            style={styles.typeButton}
+            onPress={this.switchType}
+          >
+            <Image
+              source={this.typeIcon}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.flashButton}
+            onPress={this.switchFlash}
+          >
+            <Image
+              source={this.flashIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={[styles.overlay, styles.bottomOverlay]}>
+          {
+            !this.state.isRecording
+            &&
+            <TouchableOpacity
+                style={styles.captureButton}
+                onPress={this.takePicture}
+            >
+              <Image
+                  source={require('./assets/ic_photo_camera_36pt.png')}
+              />
+            </TouchableOpacity>
+            ||
+            null
           }
-        },
-      ],
-      'plain-text'
+          <View style={styles.buttonsSpace} />
+          {
+              !this.state.isRecording
+              &&
+              <TouchableOpacity
+                  style={styles.captureButton}
+                  onPress={this.startRecording}
+              >
+                <Image
+                    source={require('./assets/ic_videocam_36pt.png')}
+                />
+              </TouchableOpacity>
+              ||
+              <TouchableOpacity
+                  style={styles.captureButton}
+                  onPress={this.stopRecording}
+              >
+                <Image
+                    source={require('./assets/ic_stop_36pt.png')}
+                />
+              </TouchableOpacity>
+          }
+        </View>
+      </View>
     );
   }
-
-  _renderItem(item) {
-
-    const onPress = () => {
-      AlertIOS.alert(
-        'Complete',
-        null,
-        [
-          //I assume this sends a remove request to the database with the key identifier
-          //When it is removed from the database, it is removed locally as well
-          {text: 'Complete', onPress: (text) => this.itemsRef.child(item._key).remove()},
-          {text: 'Cancel', onPress: (text) => console.log('Cancelled')}
-        ]
-      );
-    };
-
-    return (
-      <ListItem item={item} onPress={onPress} />
-    );
-  }
-
 }
