@@ -1,11 +1,11 @@
 import { StackNavigator, TabNavigator } from 'react-navigation';
 import React, { Component } from 'react';
 import FirebaseTest from './FirebaseTest';
-//import Location from './Location';
 import PictureTest from './PictureTest';
 import StyleTest from './StyleTest';
 // import VideoTest from './VideoTest';
-import MapNav from './components/MapNav'
+import Location from './Location';
+import PostDetail from './StyleTest';
 
 import {
     AppRegistry,
@@ -17,7 +17,7 @@ import {
 
 const Tabs = TabNavigator({
     LocationTest: {
-        screen: MapNav
+        screen: Location
     },
     FirebaseTest: {
         screen: FirebaseTest
@@ -33,6 +33,11 @@ const Tabs = TabNavigator({
 export default Nav = StackNavigator({
     Tabs: {
         screen: Tabs
-    }
-
+    },
+    Details: {
+      screen: PostDetail,
+      navigationOptions: {
+        title: 'Details',
+      }
+    },
 });
